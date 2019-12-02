@@ -12,7 +12,7 @@ Achtung die kurve todo
 - Teste denne på pi (kan være problematisk å få raske nok resultater på fire folk )
 
 Achtung die kurve ideer/tanker:
-- Om følelsegjenkjenning gir sannsynlighetsestimat til mer enn f.eks bare sint og trist kan man ha styring med tilfeldig følelser bestemt før et game begynner.
+- Om følelsegjenkjenning gir sannsynlighetsestimat til mer enn f.eks bare sint og trist kan man ha styring med tilfeldig følelser bestemt før et game begynner. Eksempel: Round 1: Høyre: overrasket, Venstre: trist
 - Man kan ved oppstart av gamet lage en sprite med hver spiller sitt ansikt som "hode" på sin orm
 - Iløpet av kampen kan vi lagre det mest intense ansiktsutrykket (basert på sannsynlighetsestimat) og fremvise som vinner på slutten
 - Mer kommer sikkert etterhvert :D
