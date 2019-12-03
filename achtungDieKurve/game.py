@@ -1,18 +1,18 @@
 import pygame
-from os import path
+from common import *
+from player import *
+from snake import *
 
-SOURCE_FOLDER = path.dirname(path.abspath(__file__))
-IMAGE_BACKGROUND = SOURCE_FOLDER + "/img/background.jpg"
-WIDTH = 1280
-HEIGHT = 720
-PLAYERS = 4
-FPS = 30
+playerList = []
+snakeList = []
 
 def main():
     init()
     startScreen()
     while True:
         gameLoop()
+
+####################################### PREPARE FOR GAME
 
 def init():
     global DISPLAY, GAMECLOCK, gameBackgroundImage, backgroundRect
@@ -21,7 +21,6 @@ def init():
     GAMECLOCK = pygame.time.Clock()
     DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
 
-    playerList = []
     for index in range(0, PLAYERS):
         playerList.append(Player(index))
     
@@ -48,12 +47,6 @@ def drawPressAnyKeyToContinue():
     msgRect.midtop = (WIDTH /2, HEIGHT - (msgRect.height + 20))
     DISPLAY.blit(msgSurf, msgRect)
 
-class Player():
-
-    def __init__(self, index):
-        self.snake_id = -1
-        self.player_id = index
-
 def startScreen():
     # surface.blit(source, dest): "Draws a source Surface onto this Surface."
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
@@ -67,6 +60,8 @@ def startScreen():
             
     GAMECLOCK.tick(FPS)
 
+####################################### RUN GAME
+
 def updateGame():
     for event in pygame.event.get():
         if event.type == pygame.QUIT: # whats this (events)?
@@ -77,6 +72,7 @@ def updateGame():
                 quitGame()
 
     # Update snake positions
+
     # and check for powerup spawns
     return "updated game state"
 
@@ -89,13 +85,20 @@ def gameLoop():
             return
 
 def initGame():
-    # Todo: place snakes, and their initial directions
+    # TODO: create snake objects
+    for index in range(0, PLAYERS):
+        snakeList.append(Snake(index, playerList[index]))
+    # TODO: place snakes, and their initial directions
+
+    # TODO: draw snake tails
     print("initializing game resources")
 
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
     # print("rendering game game resources")
     # draw snake states
+
+####################################### SUMMARIZE GAME AND OFFER RESTART
 
 def quitGame():
     pygame.quit()
