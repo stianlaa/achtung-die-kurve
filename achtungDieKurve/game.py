@@ -1,10 +1,15 @@
 import pygame
-from common import *
-from player import *
-from snake import *
+from common import WIDTH, HEIGHT, PLAYERS, IMAGE_BACKGROUND, FPS
+from player import Player
+from snake import Snake
+from util import findUnoccupiedPos
+from random import randrange
+import time
 
 playerList = []
 snakeList = []
+spriteSnakeGroup = pygame.sprite.Group()
+
 
 def main():
     init()
@@ -12,7 +17,6 @@ def main():
     while True:
         gameLoop()
 
-####################################### PREPARE FOR GAME
 
 def init():
     global DISPLAY, GAMECLOCK, gameBackgroundImage, backgroundRect
@@ -23,16 +27,17 @@ def init():
 
     for index in range(0, PLAYERS):
         playerList.append(Player(index))
-    
+
     gameBackgroundImage = pygame.image.load(IMAGE_BACKGROUND)
     gameBackgroundImage = pygame.transform.scale(gameBackgroundImage, (WIDTH, HEIGHT))
     backgroundRect = gameBackgroundImage.get_rect()
 
-def waitForKeyPress(): 
+
+def waitForKeyPress():
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quitGame()
-    
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 quitGame()
@@ -40,41 +45,28 @@ def waitForKeyPress():
                 return True
     return False
 
-def drawPressAnyKeyToContinue(): 
+
+def drawPressAnyKeyToContinue():
     msgFont = pygame.font.Font('freesansbold.ttf', 30)
-    msgSurf = msgFont.render('Press any key to continue', True, ( 40,  40,  40)) 
+    msgSurf = msgFont.render('Press any key to continue', True, (40, 40, 40))
     msgRect = msgSurf.get_rect()
-    msgRect.midtop = (WIDTH /2, HEIGHT - (msgRect.height + 20))
+    msgRect.midtop = (WIDTH / 2, HEIGHT - (msgRect.height + 20))
     DISPLAY.blit(msgSurf, msgRect)
+
 
 def startScreen():
     # surface.blit(source, dest): "Draws a source Surface onto this Surface."
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
     drawPressAnyKeyToContinue()
-    
+
     pygame.display.update()
-    
+
     while True:
         if waitForKeyPress():
             return
-            
+
     GAMECLOCK.tick(FPS)
 
-####################################### RUN GAME
-
-def updateGame():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: # whats this (events)?
-            quitGame()
-            
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                quitGame()
-
-    # Update snake positions
-
-    # and check for powerup spawns
-    return "updated game state"
 
 def gameLoop():
     initGame()
@@ -84,21 +76,49 @@ def gameLoop():
         if gameOver:
             return
 
-def initGame():
-    # TODO: create snake objects
-    for index in range(0, PLAYERS):
-        snakeList.append(Snake(index, playerList[index]))
-    # TODO: place snakes, and their initial directions
 
+def initGame():
+    for index in range(0, PLAYERS):
+        newSnake = Snake(index, playerList[index])
+        newSnake.setPos(findUnoccupiedPos(snakeList))
+        newSnake.setAng(randrange(0, 360))
+        snakeList.append(newSnake)
+
+    spriteSnakeGroup.add(snakeList)
+
+    print("Number of snakes created: " + str(len(snakeList)))
+    time.sleep(5)
     # TODO: draw snake tails
-    print("initializing game resources")
+    # TODO: draw snake bodies
+
+
+def updateGame():
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            quitGame()
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                quitGame()
+
+    # TODO: Update snake positions
+
+    # TODO: check for powerup spawns
+
+    # TODO: check for wincondition
+    pygame.display.update()
+    return False
+
 
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
-    # print("rendering game game resources")
-    # draw snake states
 
-####################################### SUMMARIZE GAME AND OFFER RESTART
+    # Draw heads
+    # print(spriteSnakeGroup)
+    spriteSnakeGroup.draw(DISPLAY)
+
+    # print("rendering game resources")
+    # draw snake states
 
 def quitGame():
     pygame.quit()
