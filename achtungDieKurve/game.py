@@ -58,14 +58,11 @@ def startScreen():
     # surface.blit(source, dest): "Draws a source Surface onto this Surface."
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
     drawPressAnyKeyToContinue()
-
+    GAMECLOCK.tick(FPS)
     pygame.display.update()
-
     while True:
         if waitForKeyPress():
             return
-
-    GAMECLOCK.tick(FPS)
 
 
 def gameLoop():
@@ -87,7 +84,6 @@ def initGame():
     spriteSnakeGroup.add(snakeList)
 
     print("Number of snakes created: " + str(len(snakeList)))
-    time.sleep(2)
     # TODO: draw snake tails
     # TODO: draw snake bodies
 
@@ -103,11 +99,12 @@ def updateGame():
 
     # TODO: Update snakes
     for snake in snakeList:
-        snake.update(None)
+        snake.update("RIGHT")
 
     # TODO: check for powerup spawns
     # TODO: check for wincondition
     pygame.display.update()
+    GAMECLOCK.tick(FPS)
     return False
 
 
@@ -115,10 +112,7 @@ def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
 
     # Draw heads
-    # print(spriteSnakeGroup)
     spriteSnakeGroup.draw(DISPLAY)
-
-    # print("rendering game resources")
     # draw snake states
 
 def quitGame():

@@ -2,6 +2,7 @@ import pygame
 from common import SNAKE_SIZE, IMAGE_HEAD, SNAKE_SPEED, TURN_SPEED
 from math import cos, sin, pi
 from util import correctForPositionLoopback, correctForAngleLoopback
+import time
 
 class Snake(pygame.sprite.Sprite):
     def __init__(self, owner_id, player, width=SNAKE_SIZE, height=SNAKE_SIZE):
@@ -14,22 +15,21 @@ class Snake(pygame.sprite.Sprite):
         if filename is not None:
             self.original_image = pygame.image.load(filename)
             self.original_image = pygame.transform.scale(self.original_image, (SNAKE_SIZE, SNAKE_SIZE))
-            self.rect = self.original_image.get_rect()
+            self.image = self.original_image
+            self.rect = self.image.get_rect()
 
     def setPos(self, position):
-        self.rect.x = position[0]
-        self.rect.y = position[1]
+        self.rect.center = (position[0], position[1])
 
     def setAng(self, angle):
         self.angle = angle
-        self.image = pygame.transform.rotate(self.original_image, self.angle)
 
     def update(self, playerInput):
+        x, y = self.rect.center
         moveVector = [SNAKE_SPEED * cos(self.angle * pi / 180), SNAKE_SPEED * sin(self.angle * pi / 180)]
 
-        nextPos = [self.rect.x + moveVector[0], self.rect.y + moveVector[1]]
+        nextPos = [x + moveVector[0], y + moveVector[1]]
         nextPos = correctForPositionLoopback(nextPos)
-        self.setPos(nextPos)
 
         nextAngle = self.angle
         if (playerInput is not None):
@@ -38,3 +38,7 @@ class Snake(pygame.sprite.Sprite):
             elif (playerInput == "LEFT"):
                 nextAngle = correctForAngleLoopback(nextAngle + TURN_SPEED)
             self.setAng(nextAngle)
+
+        self.image = pygame.transform.rotate(self.original_image, -nextAngle)
+        self.rect = self.image.get_rect()
+        self.setPos([int(round(nextPos[0])), int(round(nextPos[1]))])
