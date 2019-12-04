@@ -87,7 +87,7 @@ def initGame():
     spriteSnakeGroup.add(snakeList)
 
     print("Number of snakes created: " + str(len(snakeList)))
-    time.sleep(5)
+    time.sleep(2)
     # TODO: draw snake tails
     # TODO: draw snake bodies
 
@@ -101,10 +101,11 @@ def updateGame():
             if event.key == pygame.K_ESCAPE:
                 quitGame()
 
-    # TODO: Update snake positions
+    # TODO: Update snakes
+    for snake in snakeList:
+        snake.update(None)
 
     # TODO: check for powerup spawns
-
     # TODO: check for wincondition
     pygame.display.update()
     return False

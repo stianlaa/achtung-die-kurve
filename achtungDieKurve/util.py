@@ -20,3 +20,24 @@ def findUnoccupiedPos(snakeList):
 
         if (all(distance(snake.rect.x, snake.rect.y, candidateX, candidateY) >= MINIMUM_DISTANCE for snake in snakeList)):
             return [candidateX, candidateY]
+
+def correctForPositionLoopback(position):
+    correctedPosition = position
+    if position[0] < 0:
+        correctedPosition[0] = WIDTH + position[0]
+    elif position[0] > WIDTH:
+        correctedPosition[0] = position[0] - WIDTH
+
+    if position[1] < 0:
+        correctedPosition[1] = HEIGHT + position[1]
+    elif position[1] > HEIGHT:
+        correctedPosition[1] = position[1] - HEIGHT
+
+    return correctedPosition
+
+def correctForAngleLoopback(angle):
+    if angle >= 360:
+        return angle - 360
+    elif angle <= 0:
+        return angle + 360
+    return angle
