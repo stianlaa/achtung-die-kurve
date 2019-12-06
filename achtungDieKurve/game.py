@@ -9,6 +9,7 @@ import time
 
 playerList = []
 snakeList = []
+scoreBoard = []
 spriteSnakeGroup = pygame.sprite.Group()
 
 
@@ -107,8 +108,6 @@ def updateGame():
 
     # TODO: check for powerup spawns
 
-    # TODO: check for wincondition
-
     pygame.display.update()
     GAMECLOCK.tick(FPS)
     return False
@@ -117,15 +116,29 @@ def checkForCollisions(snake):
     snakeListCopy = snakeList.copy()
     snakeListCopy.remove(snake)
 
+    if snake.isColliding(snake.trailGroup.sprites()[:-5]):
+        killSnake(snake)
+
     for otherSnake in snakeListCopy:
         if snake.isColliding(otherSnake.trailGroup):
-            print("Snake: " + str(snake) + ", is colliding with: " + str(otherSnake))
             playerList[otherSnake.owner_id].score += 1
-            snake.dead = True
-            checkForWinConditions()
+            killSnake(snake)
+
+def killSnake(snake):
+    snake.dead = True
+    checkForWinConditions()
 
 def checkForWinConditions():
-    print("Perhaps someone won")
+    livingSnakes = 0
+    livingSnake = None
+    for snake in snakeList:
+        if not (snake.dead): 
+            livingSnakes += 1
+            livingSnake = snake
+
+    if (livingSnakes == 1):
+        winner = livingSnake
+        print("The like the winner is: " + str(winner.owner_id))
 
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)

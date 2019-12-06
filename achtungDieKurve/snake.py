@@ -14,7 +14,7 @@ class TailNode(pygame.sprite.Sprite):
             self.original_image = pygame.image.load(image)
             self.image = pygame.transform.scale(self.original_image, (width, height))
             if angle != None:
-                self.image = pygame.transform.rotate(self.image, angle)
+                self.image = pygame.transform.rotate(self.image, -angle)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
