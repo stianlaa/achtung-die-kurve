@@ -99,7 +99,6 @@ def updateGame():
             if event.key == pygame.K_ESCAPE:
                 quitGame()
 
-    # TODO: Update snakes
     for snake in snakeList:
         controlInput = playerList[snake.owner_id].getControlInput()
         snake.update(controlInput)
@@ -114,9 +113,11 @@ def updateGame():
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
 
-    # Draw heads
     spriteSnakeGroup.draw(DISPLAY)
-    # draw snake states
+
+    for snake in snakeList:
+        snake.trailGroup.draw(DISPLAY)
+
 
 def quitGame():
     pygame.quit()

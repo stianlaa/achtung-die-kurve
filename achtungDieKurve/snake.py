@@ -1,8 +1,23 @@
 import pygame
-from common import SNAKE_SIZE, IMAGE_HEAD, SNAKE_SPEED, TURN_SPEED
+from common import SNAKE_SIZE, IMAGE_HEAD, IMAGE_BODY, SNAKE_SPEED, TURN_SPEED
 from math import cos, sin, pi
 from util import correctForPositionLoopback, correctForAngleLoopback
 import time
+
+class TailNode(pygame.sprite.Sprite):
+    def __init__(self, x, y, image = None, angle = None, width = SNAKE_SIZE, height = SNAKE_SIZE):
+        super(TailNode, self).__init__()
+        if image == None:
+            self.image = pygame.Surface((width, height))
+            self.image.fill([0, 0, 0])
+        else:
+            self.original_image = pygame.image.load(image)
+            self.image = pygame.transform.scale(self.original_image, (width, height))
+            if angle != None:
+                self.image = pygame.transform.rotate(self.image, angle)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
 
 class Snake(pygame.sprite.Sprite):
     def __init__(self, owner_id, player, width=SNAKE_SIZE, height=SNAKE_SIZE):
@@ -10,6 +25,11 @@ class Snake(pygame.sprite.Sprite):
 
         self.owner_id = owner_id
         self.setImage(IMAGE_HEAD[self.owner_id])
+
+        self.layingTrail = True
+        self.currentTrailIndex = 0
+        self.tailNodes = []
+        self.trailGroup = pygame.sprite.Group()
 
     def setImage(self, filename=None):
         if filename is not None:
@@ -24,7 +44,14 @@ class Snake(pygame.sprite.Sprite):
     def setAng(self, angle):
         self.angle = angle
 
+    def updateBodyTrail(self):
+        if self.layingTrail == True and self.currentTrailIndex % 2:
+            self.tailNodes.append(TailNode(self.rect.x, self.rect.y, IMAGE_BODY[self.owner_id], self.angle))
+            self.trailGroup.add(self.tailNodes[len(self.tailNodes) - 1])
+        self.currentTrailIndex += 1
+
     def update(self, playerInput):
+        self.updateBodyTrail()
         x, y = self.rect.center
         moveVector = [SNAKE_SPEED * cos(self.angle * pi / 180), SNAKE_SPEED * sin(self.angle * pi / 180)]
 
