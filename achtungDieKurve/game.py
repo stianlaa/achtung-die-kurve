@@ -1,6 +1,7 @@
 import pygame
-from common import WIDTH, HEIGHT, PLAYERS, IMAGE_BACKGROUND, FPS
+from common import WIDTH, HEIGHT, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE
 from player import Player
+from control import Control
 from snake import Snake
 from util import findUnoccupiedPos
 from random import randrange
@@ -26,7 +27,8 @@ def init():
     DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
 
     for index in range(0, PLAYERS):
-        playerList.append(Player(index))
+        playerControl = Control(index, CONTROL_MODE) 
+        playerList.append(Player(index, playerControl))
 
     gameBackgroundImage = pygame.image.load(IMAGE_BACKGROUND)
     gameBackgroundImage = pygame.transform.scale(gameBackgroundImage, (WIDTH, HEIGHT))
@@ -99,7 +101,8 @@ def updateGame():
 
     # TODO: Update snakes
     for snake in snakeList:
-        snake.update("RIGHT")
+        controlInput = playerList[snake.owner_id].getControlInput()
+        snake.update(controlInput)
 
     # TODO: check for powerup spawns
     # TODO: check for wincondition

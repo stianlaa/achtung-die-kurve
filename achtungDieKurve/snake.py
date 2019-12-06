@@ -34,9 +34,9 @@ class Snake(pygame.sprite.Sprite):
         nextAngle = self.angle
         if (playerInput is not None):
             if (playerInput == "RIGHT"):
-                nextAngle = correctForAngleLoopback(nextAngle - TURN_SPEED)
-            elif (playerInput == "LEFT"):
                 nextAngle = correctForAngleLoopback(nextAngle + TURN_SPEED)
+            elif (playerInput == "LEFT"):
+                nextAngle = correctForAngleLoopback(nextAngle - TURN_SPEED)
             self.setAng(nextAngle)
 
         self.image = pygame.transform.rotate(self.original_image, -nextAngle)
