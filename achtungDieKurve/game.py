@@ -100,15 +100,32 @@ def updateGame():
                 quitGame()
 
     for snake in snakeList:
-        controlInput = playerList[snake.owner_id].getControlInput()
-        snake.update(controlInput)
+        if not (snake.dead):
+            controlInput = playerList[snake.owner_id].getControlInput()
+            snake.update(controlInput)
+            checkForCollisions(snake)
 
     # TODO: check for powerup spawns
+
     # TODO: check for wincondition
+
     pygame.display.update()
     GAMECLOCK.tick(FPS)
     return False
 
+def checkForCollisions(snake):
+    snakeListCopy = snakeList.copy()
+    snakeListCopy.remove(snake)
+
+    for otherSnake in snakeListCopy:
+        if snake.isColliding(otherSnake.trailGroup):
+            print("Snake: " + str(snake) + ", is colliding with: " + str(otherSnake))
+            playerList[otherSnake.owner_id].score += 1
+            snake.dead = True
+            checkForWinConditions()
+
+def checkForWinConditions():
+    print("Perhaps someone won")
 
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)

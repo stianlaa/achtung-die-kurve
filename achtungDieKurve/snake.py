@@ -30,6 +30,7 @@ class Snake(pygame.sprite.Sprite):
         self.currentTrailIndex = 0
         self.tailNodes = []
         self.trailGroup = pygame.sprite.Group()
+        self.dead = False
 
     def setImage(self, filename=None):
         if filename is not None:
@@ -69,3 +70,9 @@ class Snake(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.original_image, -nextAngle)
         self.rect = self.image.get_rect()
         self.setPos([int(round(nextPos[0])), int(round(nextPos[1]))])
+
+    def isColliding(self, otherGroup):
+        if pygame.sprite.spritecollide(self, otherGroup, False):
+            return True
+        return False
+
