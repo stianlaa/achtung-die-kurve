@@ -1,5 +1,5 @@
 import pygame
-from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE, PRINT_FPS
+from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE, PRINT_FPS, SCORE_LIMIT
 from player import Player
 from control import Control
 from snake import Snake
@@ -21,11 +21,21 @@ def main():
     init()
     startScreen()
     while True:
-        gameLoop()
+        gameOver = False
+        roundWinner = gameLoop()
+        
+        playerList[roundWinner.owner_id].incrementScore()
+        if playerList[roundWinner.owner_id].score > SCORE_LIMIT:
+            gameOver = True
+            roundWinner = None
+        
+        if (gameOver):
+            showScoreboard()
+        
 
 
 def init():
-    global DISPLAY, GAMECLOCK, gameBackgroundImage, backgroundRect
+    global DISPLAY, GAMECLOCK
 
     pygame.init()
     GAMECLOCK = pygame.time.Clock()
@@ -35,9 +45,8 @@ def init():
         playerControl = Control(index, CONTROL_MODE) 
         playerList.append(Player(index, playerControl))
 
-    gameBackgroundImage = pygame.image.load(IMAGE_BACKGROUND)
-    gameBackgroundImage = pygame.transform.scale(gameBackgroundImage, (WIDTH, HEIGHT))
-    backgroundRect = gameBackgroundImage.get_rect()
+    drawBackground()
+
 
 def waitForKeyPress():
     for event in pygame.event.get():
@@ -61,7 +70,6 @@ def drawPressAnyKeyToContinue():
 
 
 def startScreen():
-    # surface.blit(source, dest): "Draws a source Surface onto this Surface."
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
     drawPressAnyKeyToContinue()
     GAMECLOCK.tick(FPS)
@@ -72,12 +80,18 @@ def startScreen():
 
 
 def gameLoop():
+    # TODO: add begin game countdown
     initGame()
     while True:
-        gameOver = updateGame()
+        roundWinner = updateGame()
         gameRender()
-        if gameOver:
-            return
+        if (roundWinner is not None): 
+            print("Round winner detected, resetting")
+            
+            resetForNewRound()
+            startScreen()
+            return roundWinner
+
 
 def initGame():
     for index in range(0, PLAYERS):
@@ -87,70 +101,90 @@ def initGame():
         snakeList.append(newSnake)
 
     spriteSnakeGroup.add(snakeList)
-    powerup = placePowerupAtUnoccupiedPos(snakeList)
-    powerupList.append(powerup)
-    spritePowerupGroup.add(powerup)
+    createAndPlacePowerup()
     print("Number of snakes created: " + str(len(snakeList)))
 
 
+def resetForNewRound():
+    # TODO: clear head of snakes also
+    spritePowerupGroup.empty()
+    spritePowerupGroup.add()
+    for snake in snakeList:
+        snake.trailGroup.empty()
+        snake.trailGroup.add()
+    drawBackground()
+
+
+def drawBackground():
+    global gameBackgroundImage, backgroundRect
+    gameBackgroundImage = pygame.image.load(IMAGE_BACKGROUND)
+    gameBackgroundImage = pygame.transform.scale(gameBackgroundImage, (WIDTH, HEIGHT))
+    backgroundRect = gameBackgroundImage.get_rect()
+
+
 def updateGame():
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quitGame()
-
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 quitGame()
 
-
     for snake in snakeList:
         if not (snake.dead):
             controlInput = playerList[snake.owner_id].getControlInput()
             snake.update(controlInput)
-            checkForCollisions(snake)
+            roundWinner = checkForCollisions(snake)
+            if (roundWinner is not None): return roundWinner
         
-
         for powerup in powerupList:
             if (powerup.isColliding(snake)):
-                
                 snake.applyPowerup(powerup)
                 activePowerups.append([powerup.powerupType, snake, time.time()])
+                powerup.kill()
                 powerup.remove()
                 powerupList.remove(powerup)
         
-
     for entry in activePowerups:
         if (entry[2] + POWERUP_DURATION < time.time()):
             entry[1].clearPowerupEffect(entry[0])
             activePowerups.remove(entry)
 
-
-    if (time.time() > Powerup.nextPowerupSpawn ):
-        powerup = placePowerupAtUnoccupiedPos(snakeList)
-        powerupList.append(powerup)
-        spritePowerupGroup.add(powerup)
+    if (time.time() > Powerup.nextPowerupSpawn):
+        createAndPlacePowerup()
 
     pygame.display.update()
     GAMECLOCK.tick(FPS)
     calculateFps()
-    return False
+
+
+def createAndPlacePowerup():
+    powerup = placePowerupAtUnoccupiedPos(snakeList)
+    powerupList.append(powerup)
+    spritePowerupGroup.add(powerup)
+
 
 def checkForCollisions(snake):
     snakeListCopy = snakeList.copy()
     snakeListCopy.remove(snake)
 
     if snake.isColliding(snake.trailGroup.sprites()[:-5]):
-        killSnake(snake)
+        roundWinner = killSnake(snake)
+        if (roundWinner is not None): return roundWinner
 
     for otherSnake in snakeListCopy:
         if snake.isColliding(otherSnake.trailGroup):
             playerList[otherSnake.owner_id].score += 1
-            killSnake(snake)
+            roundWinner = killSnake(snake)
+            if (roundWinner is not None): return roundWinner
+
 
 def killSnake(snake):
     snake.dead = True
-    checkForWinConditions()
+    return checkForWinConditions()
+
 
 def checkForWinConditions():
     livingSnakes = 0
@@ -161,14 +195,16 @@ def checkForWinConditions():
             livingSnake = snake
 
     if (livingSnakes == 1):
-        winner = livingSnake
-        print("The winner is snake: " + str(winner.owner_id))
+        roundWinner = livingSnake
+        return roundWinner
+
 
 def calculateFps():
     if (PRINT_FPS):
         clock.tick()
         fps = clock.get_fps()
         print("fps: " + str(fps))
+
 
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
@@ -178,13 +214,18 @@ def gameRender():
 
     for snake in snakeList:
         snake.trailGroup.draw(DISPLAY)
-    
 
+
+def showScoreboard():
+    print("Scoreboard!")
+    for p in playerList:
+        print("Player: " + str(p.player_id) + ", score: " + str(p.score))
 
 
 def quitGame():
     pygame.quit()
     quit()
+
 
 if __name__ == '__main__':
     main()

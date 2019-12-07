@@ -8,3 +8,6 @@ class Player():
     
     def getControlInput(self):
         return self.playerControl.getControlInput()
+
+    def incrementScore(self):
+        self.score += 1

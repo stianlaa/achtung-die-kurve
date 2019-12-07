@@ -1,8 +1,11 @@
 import pygame
-from common import SNAKE_SIZE, IMAGE_HEAD, IMAGE_BODY, SNAKE_SPEED, TURN_SPEED
+from common import SNAKE_SIZE, IMAGE_HEAD, IMAGE_BODY, SNAKE_SPEED, TURN_SPEED, TRAILSKIP_AVG_DELAY, TRAILSKIP_LENGTH
+
 from math import cos, sin, pi
 from util import correctForPositionLoopback, correctForAngleLoopback
+from random import randrange
 import time
+
 
 class TailNode(pygame.sprite.Sprite):
     def __init__(self, x, y, image = None, angle = None, width = SNAKE_SIZE, height = SNAKE_SIZE):
@@ -26,6 +29,9 @@ class Snake(pygame.sprite.Sprite):
         self.owner_id = owner_id
         self.setImage(IMAGE_HEAD[self.owner_id])
 
+        self.trailSkip = False
+        self.setNextTrailSkip()
+
         self.layingTrail = True
         self.currentTrailIndex = 0
         self.tailNodes = []
@@ -47,13 +53,15 @@ class Snake(pygame.sprite.Sprite):
         self.angle = angle
 
     def updateBodyTrail(self):
-        if self.layingTrail and self.currentTrailIndex % 2:
+        if self.layingTrail and self.currentTrailIndex % 2 and not self.trailSkip:
             self.tailNodes.append(TailNode(self.rect.x, self.rect.y, IMAGE_BODY[self.owner_id], self.angle))
             self.trailGroup.add(self.tailNodes[len(self.tailNodes) - 1])
         self.currentTrailIndex += 1
 
     def update(self, playerInput):
         self.updateBodyTrail()
+        self.updateTrailskip()
+
         x, y = self.rect.center
         moveVector = [self.snakeSpeed * cos(self.angle * pi / 180), self.snakeSpeed * sin(self.angle * pi / 180)]
 
@@ -76,6 +84,19 @@ class Snake(pygame.sprite.Sprite):
         if self.layingTrail and pygame.sprite.spritecollide(self, otherGroup, False):
             return True
         return False
+
+    def setNextTrailSkip(self):
+        self.nextTrailSkip = time.time() + randrange(TRAILSKIP_AVG_DELAY - 2,TRAILSKIP_AVG_DELAY + 2)
+        self.trailSkipFinished = self.nextTrailSkip + TRAILSKIP_LENGTH    
+
+    def updateTrailskip(self):
+        if (time.time() > self.nextTrailSkip and not self.trailSkip):
+            self.trailSkip = True
+        
+        if (time.time() > self.trailSkipFinished):
+            self.trailSkip = False
+            self.setNextTrailSkip()
+        
 
     def applyPowerup(self, powerup):
         if (powerup.powerupType == "speedup"):

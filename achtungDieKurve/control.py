@@ -11,13 +11,17 @@ controls = []
 class Control():
     def __init__(self, index, controlMode):
         self.player_id = index
+        # TODO: set allowed events to keyboard list
+
         if (controlMode == "KEYBOARD"):
             keys = playerKeyboardControls[index]
             right = lambda: pygame.key.get_pressed()[keys[0]]
             left = lambda: pygame.key.get_pressed()[keys[1]]
             controls.append({"RIGHT": right, "LEFT": left})
         elif (controlMode == "HANDS"):
-            print("Coming soon, to an achtung near you!")
+            print("Hand gesture control, coming soon, to an achtung near you!")
+        elif (controlMode == "FACE"):
+            print("Face control, coming soon, to an achtung near you!")
         else:
             print("Missing control mode")
 
