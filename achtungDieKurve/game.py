@@ -1,5 +1,5 @@
 import pygame
-from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE
+from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE, PRINT_FPS
 from player import Player
 from control import Control
 from snake import Snake
@@ -15,7 +15,7 @@ activePowerups = []
 scoreBoard = []
 spriteSnakeGroup = pygame.sprite.Group()
 spritePowerupGroup = pygame.sprite.Group()
-
+clock = pygame.time.Clock()
 
 def main():
     init()
@@ -79,7 +79,6 @@ def gameLoop():
         if gameOver:
             return
 
-
 def initGame():
     for index in range(0, PLAYERS):
         newSnake = Snake(index, playerList[index])
@@ -134,6 +133,7 @@ def updateGame():
 
     pygame.display.update()
     GAMECLOCK.tick(FPS)
+    calculateFps()
     return False
 
 def checkForCollisions(snake):
@@ -164,6 +164,12 @@ def checkForWinConditions():
         winner = livingSnake
         print("The winner is snake: " + str(winner.owner_id))
 
+def calculateFps():
+    if (PRINT_FPS):
+        clock.tick()
+        fps = clock.get_fps()
+        print("fps: " + str(fps))
+
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
 
@@ -172,6 +178,8 @@ def gameRender():
 
     for snake in snakeList:
         snake.trailGroup.draw(DISPLAY)
+    
+
 
 
 def quitGame():
