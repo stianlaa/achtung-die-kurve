@@ -11,11 +11,23 @@ IMAGE_HEAD = [SOURCE_FOLDER + "/img/head1.png",
             SOURCE_FOLDER + "/img/head3.png",
             SOURCE_FOLDER + "/img/head4.png"]
 
+IMAGE_POWERUP = {"notrail": SOURCE_FOLDER + "/img/powerup_notrail.png",
+                "slowdown": SOURCE_FOLDER + "/img/powerup_slowdown.png",
+                "speedup": SOURCE_FOLDER + "/img/powerup_speedup.png"}
+
 WIDTH = 1280
 HEIGHT = 720
-PLAYERS = 4
+
+PLAYERS = 2
+
 FPS = 30
+
 SNAKE_SIZE = 10
 SNAKE_SPEED = 4
 TURN_SPEED = 3
+
+POWERUP_DURATION = 2
+POWERUP_AVG_SPAWNDELAY = 10
+POWERUP_SIZE = 15
+
 CONTROL_MODE = "KEYBOARD"

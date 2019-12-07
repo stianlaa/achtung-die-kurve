@@ -31,6 +31,7 @@ class Snake(pygame.sprite.Sprite):
         self.tailNodes = []
         self.trailGroup = pygame.sprite.Group()
         self.dead = False
+        self.snakeSpeed = SNAKE_SPEED
 
     def setImage(self, filename=None):
         if filename is not None:
@@ -54,7 +55,7 @@ class Snake(pygame.sprite.Sprite):
     def update(self, playerInput):
         self.updateBodyTrail()
         x, y = self.rect.center
-        moveVector = [SNAKE_SPEED * cos(self.angle * pi / 180), SNAKE_SPEED * sin(self.angle * pi / 180)]
+        moveVector = [self.snakeSpeed * cos(self.angle * pi / 180), self.snakeSpeed * sin(self.angle * pi / 180)]
 
         nextPos = [x + moveVector[0], y + moveVector[1]]
         nextPos = correctForPositionLoopback(nextPos)
@@ -76,3 +77,21 @@ class Snake(pygame.sprite.Sprite):
             return True
         return False
 
+    def applyPowerup(self, powerup):
+        # print("Applying powerup of type: " + powerup.powerupType + "to snake: " + str(self.owner_id))
+        if (powerup.powerupType == "speedup"):
+            self.snakeSpeed = SNAKE_SPEED*2
+        elif (powerup.powerupType == "slowdown"):
+            self.snakeSpeed = SNAKE_SPEED*0.5
+        elif (powerup.powerupType == "notrail"):
+            print("notrail will be implmented soon")
+        else:
+            print("Unknown powerup")
+    
+    def clearPowerupEffect(self, powerupType):
+        if (powerupType == "slowdown" or powerupType == "speedup"):
+            self.snakeSpeed = SNAKE_SPEED
+        elif (powerupType == "notrail"):
+            print("remove effect of notrail")
+        else:
+            print("Unknown powerup")

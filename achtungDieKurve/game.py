@@ -1,16 +1,20 @@
 import pygame
-from common import WIDTH, HEIGHT, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE
+from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE
 from player import Player
 from control import Control
 from snake import Snake
-from util import findUnoccupiedPos
+from powerup import Powerup
+from util import findUnoccupiedPosForSnake, placePowerupAtUnoccupiedPos
 from random import randrange
 import time
 
 playerList = []
 snakeList = []
+powerupList = []
+activePowerups = []
 scoreBoard = []
 spriteSnakeGroup = pygame.sprite.Group()
+spritePowerupGroup = pygame.sprite.Group()
 
 
 def main():
@@ -34,7 +38,6 @@ def init():
     gameBackgroundImage = pygame.image.load(IMAGE_BACKGROUND)
     gameBackgroundImage = pygame.transform.scale(gameBackgroundImage, (WIDTH, HEIGHT))
     backgroundRect = gameBackgroundImage.get_rect()
-
 
 def waitForKeyPress():
     for event in pygame.event.get():
@@ -80,15 +83,15 @@ def gameLoop():
 def initGame():
     for index in range(0, PLAYERS):
         newSnake = Snake(index, playerList[index])
-        newSnake.setPos(findUnoccupiedPos(snakeList))
+        newSnake.setPos(findUnoccupiedPosForSnake(snakeList))
         newSnake.setAng(randrange(0, 360))
         snakeList.append(newSnake)
 
     spriteSnakeGroup.add(snakeList)
-
+    powerup = placePowerupAtUnoccupiedPos(snakeList)
+    powerupList.append(powerup)
+    spritePowerupGroup.add(powerup)
     print("Number of snakes created: " + str(len(snakeList)))
-    # TODO: draw snake tails
-    # TODO: draw snake bodies
 
 
 def updateGame():
@@ -96,17 +99,38 @@ def updateGame():
         if event.type == pygame.QUIT:
             quitGame()
 
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 quitGame()
+
 
     for snake in snakeList:
         if not (snake.dead):
             controlInput = playerList[snake.owner_id].getControlInput()
             snake.update(controlInput)
             checkForCollisions(snake)
+        
 
-    # TODO: check for powerup spawns
+        for powerup in powerupList:
+            if (powerup.isColliding(snake)):
+                
+                snake.applyPowerup(powerup)
+                activePowerups.append([powerup.powerupType, snake, time.time()])
+                powerup.remove()
+                powerupList.remove(powerup)
+        
+
+    for entry in activePowerups:
+        if (entry[2] + POWERUP_DURATION < time.time()):
+            entry[1].clearPowerupEffect(entry[0])
+            activePowerups.remove(entry)
+
+
+    if (time.time() > Powerup.nextPowerupSpawn ):
+        powerup = placePowerupAtUnoccupiedPos(snakeList)
+        powerupList.append(powerup)
+        spritePowerupGroup.add(powerup)
 
     pygame.display.update()
     GAMECLOCK.tick(FPS)
@@ -138,12 +162,13 @@ def checkForWinConditions():
 
     if (livingSnakes == 1):
         winner = livingSnake
-        print("The like the winner is: " + str(winner.owner_id))
+        print("The winner is snake: " + str(winner.owner_id))
 
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
 
     spriteSnakeGroup.draw(DISPLAY)
+    spritePowerupGroup.draw(DISPLAY)
 
     for snake in snakeList:
         snake.trailGroup.draw(DISPLAY)
