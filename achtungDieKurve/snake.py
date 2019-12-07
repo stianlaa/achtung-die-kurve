@@ -47,7 +47,7 @@ class Snake(pygame.sprite.Sprite):
         self.angle = angle
 
     def updateBodyTrail(self):
-        if self.layingTrail == True and self.currentTrailIndex % 2:
+        if self.layingTrail and self.currentTrailIndex % 2:
             self.tailNodes.append(TailNode(self.rect.x, self.rect.y, IMAGE_BODY[self.owner_id], self.angle))
             self.trailGroup.add(self.tailNodes[len(self.tailNodes) - 1])
         self.currentTrailIndex += 1
@@ -73,25 +73,20 @@ class Snake(pygame.sprite.Sprite):
         self.setPos([int(round(nextPos[0])), int(round(nextPos[1]))])
 
     def isColliding(self, otherGroup):
-        if pygame.sprite.spritecollide(self, otherGroup, False):
+        if self.layingTrail and pygame.sprite.spritecollide(self, otherGroup, False):
             return True
         return False
 
     def applyPowerup(self, powerup):
-        # print("Applying powerup of type: " + powerup.powerupType + "to snake: " + str(self.owner_id))
         if (powerup.powerupType == "speedup"):
             self.snakeSpeed = SNAKE_SPEED*2
         elif (powerup.powerupType == "slowdown"):
             self.snakeSpeed = SNAKE_SPEED*0.5
         elif (powerup.powerupType == "notrail"):
-            print("notrail will be implmented soon")
-        else:
-            print("Unknown powerup")
+            self.layingTrail = False
     
     def clearPowerupEffect(self, powerupType):
         if (powerupType == "slowdown" or powerupType == "speedup"):
             self.snakeSpeed = SNAKE_SPEED
         elif (powerupType == "notrail"):
-            print("remove effect of notrail")
-        else:
-            print("Unknown powerup")
+            self.layingTrail = True

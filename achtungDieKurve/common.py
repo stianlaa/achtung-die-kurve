@@ -18,11 +18,11 @@ IMAGE_POWERUP = {"notrail": SOURCE_FOLDER + "/img/powerup_notrail.png",
 WIDTH = 1280
 HEIGHT = 720
 
-PLAYERS = 2
+PLAYERS = 4
 
 FPS = 30
 
-SNAKE_SIZE = 10
+SNAKE_SIZE = 12
 SNAKE_SPEED = 4
 TURN_SPEED = 3
 

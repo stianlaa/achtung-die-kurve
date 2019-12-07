@@ -35,7 +35,7 @@ class Powerup(pygame.sprite.Sprite):
     
     def isColliding(self, snake):
         snakeGroup = pygame.sprite.GroupSingle(snake)
-        if pygame.sprite.spritecollide(self, snakeGroup, True):
+        if pygame.sprite.spritecollide(self, snakeGroup, False):
             return True
         return False
 
