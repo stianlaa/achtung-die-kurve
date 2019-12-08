@@ -1,5 +1,5 @@
 import pygame
-from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE, PRINT_FPS, SCORE_LIMIT
+from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE, PRINT_FPS, SCORE_LIMIT, PLACEMENT
 from player import Player
 from control import Control
 from snake import Snake
@@ -31,8 +31,10 @@ def main():
         
         if (gameOver):
             showScoreboard()
+            while True:
+                if waitForKeyPress():
+                    return
         
-
 
 def init():
     global DISPLAY, GAMECLOCK
@@ -105,6 +107,7 @@ def gameLoop():
             print("Round winner detected, resetting")
             
             resetForNewRound()
+            # TODO: check for global wincondition
             startScreen()
             return roundWinner
 
@@ -235,11 +238,22 @@ def gameRender():
     for snake in snakeList:
         snake.trailGroup.draw(DISPLAY)
 
+def drawPlayerscoreOnScreen(player, placement):
+    print("Writing entry for player " + str(player.player_id) + " placement: " + str(placement))
+    msgFont = pygame.font.Font('freesansbold.ttf', 40 - placement*5)
+    msgSurf = msgFont.render("{}  Player {}   total score:  {}".format(PLACEMENT[placement], str(player.player_id + 1), str(player.score)), True, (40, 40, 40))
+    msgRect = msgSurf.get_rect()
+    msgRect.midtop = (WIDTH / 2, HEIGHT*(0.8 - placement*0.2))
+    DISPLAY.blit(msgSurf, msgRect)
 
 def showScoreboard():
-    print("Scoreboard!")
-    for p in playerList:
-        print("Player: " + str(p.player_id) + ", score: " + str(p.score))
+    # TODO: fix countdown showing up before scoreboard
+    playerListByScore = sorted(playerList, key= lambda p: p.score, reverse=True)
+
+    for placement, player in enumerate(playerListByScore):
+        drawPlayerscoreOnScreen(player, placement)
+        
+    pygame.display.update()
 
 
 def quitGame():

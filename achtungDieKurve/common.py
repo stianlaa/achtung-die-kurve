@@ -15,11 +15,16 @@ IMAGE_POWERUP = {"notrail": SOURCE_FOLDER + "/img/powerup_notrail.png",
                 "slowdown": SOURCE_FOLDER + "/img/powerup_slowdown.png",
                 "speedup": SOURCE_FOLDER + "/img/powerup_speedup.png"}
 
+PLACEMENT = {0: "WINNER",
+             1: "2nd",
+             2: "3rd",
+             3: "4th"}
+
 WIDTH = 1280
 HEIGHT = 720
 
 PLAYERS = 4
-SCORE_LIMIT = 3
+SCORE_LIMIT = 2
 
 FPS = 30
 PRINT_FPS = False
