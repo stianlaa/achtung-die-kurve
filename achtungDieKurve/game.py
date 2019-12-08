@@ -66,21 +66,37 @@ def drawPressAnyKeyToContinue():
     msgSurf = msgFont.render('Press any key to continue', True, (40, 40, 40))
     msgRect = msgSurf.get_rect()
     msgRect.midtop = (WIDTH / 2, HEIGHT - (msgRect.height + 20))
+
     DISPLAY.blit(msgSurf, msgRect)
+    pygame.display.update()
+
+
+def drawCountdown(count):
+    drawBackground()
+    DISPLAY.blit(gameBackgroundImage, backgroundRect)
+
+    msgFont = pygame.font.Font('freesansbold.ttf', 60)
+    msgSurf = msgFont.render(str(count), True, (40, 40, 40))
+    msgRect = msgSurf.get_rect()
+    msgRect.midtop = (WIDTH / 2, HEIGHT*0.6)
+    DISPLAY.blit(msgSurf, msgRect)
+    pygame.display.update()
 
 
 def startScreen():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
     drawPressAnyKeyToContinue()
     GAMECLOCK.tick(FPS)
-    pygame.display.update()
+    
     while True:
         if waitForKeyPress():
+            for i in range(3, 0, -1):
+                drawCountdown(i)
+                time.sleep(1)
             return
 
 
 def gameLoop():
-    # TODO: add begin game countdown
     initGame()
     while True:
         roundWinner = updateGame()
@@ -106,13 +122,17 @@ def initGame():
 
 
 def resetForNewRound():
-    # TODO: clear head of snakes also
     spritePowerupGroup.empty()
     spritePowerupGroup.add()
+    spriteSnakeGroup.empty()
+    spriteSnakeGroup.add()
     for snake in snakeList:
         snake.trailGroup.empty()
         snake.trailGroup.add()
     drawBackground()
+    snakeList.clear()
+    powerupList.clear()
+    activePowerups.clear()
 
 
 def drawBackground():
