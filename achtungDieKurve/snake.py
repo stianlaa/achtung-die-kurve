@@ -15,7 +15,7 @@ class TailNode(pygame.sprite.Sprite):
             self.image.fill([0, 0, 0])
         else:
             self.original_image = pygame.image.load(image)
-            self.image = pygame.transform.scale(self.original_image, (width, height))
+            self.image = pygame.transform.scale(self.original_image, (width+2, height))
             if angle != None:
                 self.image = pygame.transform.rotate(self.image, -angle)
         self.rect = self.image.get_rect()
@@ -53,7 +53,7 @@ class Snake(pygame.sprite.Sprite):
         self.angle = angle
 
     def updateBodyTrail(self):
-        if self.layingTrail and self.currentTrailIndex % 2 and not self.trailSkip:
+        if self.layingTrail and (self.currentTrailIndex % 3 == 0) and not self.trailSkip:
             self.tailNodes.append(TailNode(self.rect.x, self.rect.y, IMAGE_BODY[self.owner_id], self.angle))
             self.trailGroup.add(self.tailNodes[len(self.tailNodes) - 1])
         self.currentTrailIndex += 1
