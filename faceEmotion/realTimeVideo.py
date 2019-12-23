@@ -5,7 +5,7 @@ from keras.models import load_model
 import numpy as np
 
 # parameters for loading data and images
-detection_model_path = 'haarcascadeFiles/haarcascade_frontalface_default.xml'
+detection_model_path = 'haarcascadeFiles/haarcascadeFrontalfaceDefault.xml'
 emotion_model_path = 'models/_mini_XCEPTION.106-0.65.hdf5'
 
 # hyper-parameters for bounding boxes shape
