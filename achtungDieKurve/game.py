@@ -232,11 +232,12 @@ def calculateFps():
 def gameRender():
     DISPLAY.blit(gameBackgroundImage, backgroundRect)
 
-    spriteSnakeGroup.draw(DISPLAY)
     spritePowerupGroup.draw(DISPLAY)
-
+    
     for snake in snakeList:
         snake.trailGroup.draw(DISPLAY)
+
+    spriteSnakeGroup.draw(DISPLAY)
 
 def drawPlayerscoreOnScreen(player, placement):
     print("Writing entry for player " + str(player.player_id) + " placement: " + str(placement))
