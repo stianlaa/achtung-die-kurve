@@ -2,7 +2,7 @@
 This script creates 3-channel gray images from FER 2013 dataset.
 
 It has been done so that the CNNs designed for RGB images can 
-be used without modifying the input shape. 
+be used without modifying the input shape.
 
 This script requires two command line parameters:
 1. The path to the CSV file
