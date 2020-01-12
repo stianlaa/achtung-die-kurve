@@ -20,11 +20,19 @@ PLACEMENT = {0: "WINNER",
              2: "3rd",
              3: "4th"}
 
+PLAYER_COLORS = [
+    (0, 203, 181),
+    (191, 30, 46),
+    (252, 165, 68),
+    (186, 218, 85)]
+
 WIDTH = 1280
-HEIGHT = 720
+# For øyeblikket er cameraoutput 0.75 i screen ratio
+# for å bruke facecontrol burde disse ha ratio 0.75
+HEIGHT = 960
 
 PLAYERS = 4
-SCORE_LIMIT = 2
+SCORE_LIMIT = 8
 
 FPS = 30
 PRINT_FPS = False
