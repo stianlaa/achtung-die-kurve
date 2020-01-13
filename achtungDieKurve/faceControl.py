@@ -61,19 +61,17 @@ def getEmotionControls():
                 emotion_probability = np.max(preds)
                 label = EMOTIONS[preds.argmax()]
 
-
-
-        #if preds is not None:
-#            for (i, (emotion, prob)) in enumerate(zip(EMOTIONS, preds)):
-                #construct the label text
-                #text = "{}: {:.2f}%".format(emotion, prob * 100)
-                #w = int(prob * 300)
-                #cv2.rectangle(playerCanvas, (7, (i * 35) + 5), (w, (i * 35) + 35), (0, 0, 255), -1)
-                #cv2.putText(playerCanvas, text, (10, (i * 35) + 23),
-                #cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 2)
-                #cv2.putText(playerFrameClone, label, (fX, fY - 10),
-                #cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
-                #cv2.rectangle(playerFrameClone, (fX, fY), (fX + fW, fY + fH), (0, 0, 255), 2)
+                if preds is not None:
+                    for (i, (emotion, prob)) in enumerate(zip(EMOTIONS, preds)):
+                        #construct the label text
+                        text = "{}: {:.2f}%".format(emotion, prob * 100)
+                        w = int(prob * 300)
+                        cv2.rectangle(frameClone, (lowerLeft[0] + 7, lowerLeft[1] + (i * 35) + 5), (lowerLeft[0] + w, lowerLeft[1] + (i * 35) + 35), PLAYER_COLORS[playerIndex][::-1], -1)
+                        #cv2.putText(frameClone, text, (10, (i * 35) + 23),
+                        #cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 2)
+                        cv2.putText(frameClone, label, (lowerLeft[0] + fX, lowerLeft[1] + fY - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, PLAYER_COLORS[playerIndex][::-1], 2)
+                        cv2.rectangle(frameClone, (lowerLeft[0] + fX, lowerLeft[1] + fY), (lowerLeft[0] + fX + fW, lowerLeft[1] + fY + fH), PLAYER_COLORS[playerIndex][::-1], 2)
 
 
         #############
