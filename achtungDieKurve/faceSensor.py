@@ -21,7 +21,7 @@ emotion_classifier = load_model(emotion_model_path, compile=False)
 EMOTIONS = ["angry" ,"disgust","scared", "happy", "sad", "surprised",
  "neutral"]
 
-def getEmotionControls():
+def getEmotions():
     # starting video streaming
     cv2.namedWindow('your_face')
     camera = cv2.VideoCapture(0)
@@ -63,12 +63,15 @@ def getEmotionControls():
 
                 if preds is not None:
                     for (i, (emotion, prob)) in enumerate(zip(EMOTIONS, preds)):
-                        #construct the label text
-                        text = "{}: {:.2f}%".format(emotion, prob * 100)
                         w = int(prob * 300)
+                        
+                        # Emotion probability percentages
+                        text = "{}: {:.2f}%".format(emotion, prob * 100)
                         cv2.rectangle(frameClone, (lowerLeft[0] + 7, lowerLeft[1] + (i * 35) + 5), (lowerLeft[0] + w, lowerLeft[1] + (i * 35) + 35), PLAYER_COLORS[playerIndex][::-1], -1)
-                        #cv2.putText(frameClone, text, (10, (i * 35) + 23),
-                        #cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 2)
+                        cv2.putText(frameClone, text, (lowerLeft[0] + 10, lowerLeft[1] + (i * 35) + 23),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 2)
+                        
+                        # Marker for face
                         cv2.putText(frameClone, label, (lowerLeft[0] + fX, lowerLeft[1] + fY - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.45, PLAYER_COLORS[playerIndex][::-1], 2)
                         cv2.rectangle(frameClone, (lowerLeft[0] + fX, lowerLeft[1] + fY), (lowerLeft[0] + fX + fW, lowerLeft[1] + fY + fH), PLAYER_COLORS[playerIndex][::-1], 2)
@@ -82,6 +85,6 @@ def getEmotionControls():
 
 
 if __name__ == '__main__':
-    getEmotionControls()
+    getEmotions()
     camera.release()
     cv2.destroyAllWindows()

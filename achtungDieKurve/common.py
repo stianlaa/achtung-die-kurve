@@ -31,7 +31,7 @@ WIDTH = 1280
 # for å bruke facecontrol burde disse ha ratio 0.75
 HEIGHT = 960
 
-PLAYERS = 4
+PLAYERS = 2
 SCORE_LIMIT = 8
 
 FPS = 30
