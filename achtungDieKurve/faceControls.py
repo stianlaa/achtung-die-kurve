@@ -16,8 +16,21 @@ DISPLAY_SCREEN = False
 FRAME_WIDTH = 4
 
 face_detection =  cv2.CascadeClassifier(detection_model_path)
-emotion_classifier = load_model(emotion_model_path, compile=False)
+
 EMOTIONS = ["angry" ,"disgust","scared", "happy", "sad", "surprised", "neutral"]
+
+camera = cv2.VideoCapture(0)
+if DISPLAY_SCREEN:
+    cv2.namedWindow('facecontrol')
+
+def initializeFaceControlList():
+    controlList = []
+    for playerIndex in range(0, PLAYERS):
+        controlList.append({"extractedEmotion": None, "turnDirection": None, "probability": 0})
+    return controlList
+
+playerEmotionControls = initializeFaceControlList()
+
 
 # Check for most probable of the chosen emotions and neutral
 def extractMostProbable(chosenEmotions, predictions):
@@ -34,78 +47,71 @@ def extractMostProbable(chosenEmotions, predictions):
     return {"mostProbable": mostProbable, "probability": maxProbability}
 
 
-def getFaceControls(emotionControls):
+def getFaceControls(emotionControls, emotion_classifier):
+
     # starting video streaming
-    cv2.namedWindow('your_face')
-    camera = cv2.VideoCapture(0)
-    while True:
-        frame = camera.read()[1]
+    frame = camera.read()[1]
 
-        #Expensive operation, costly to enlarge
-        frame = imutils.resize(frame, width=WIDTH) 
-
-        canvas = np.zeros((HEIGHT, HEIGHT, 3), dtype="uint8")
-        frameClone = frame.copy()
-
-        preds = None        
-        for playerIndex in range(0, PLAYERS):
-            lowerLeft = (PLAYER_FRAME_WIDTH*playerIndex + FRAME_WIDTH, FRAME_WIDTH)
-            topRight = (PLAYER_FRAME_WIDTH*(playerIndex + 1) - FRAME_WIDTH, PLAYER_FRAME_HEIGHT - FRAME_WIDTH)
-
-            if DISPLAY_SCREEN:
-                cv2.rectangle(frameClone, lowerLeft, topRight, PLAYER_COLORS[playerIndex][::-1], FRAME_WIDTH)
-
-            playerFrame = frameClone[lowerLeft[1]:topRight[1], lowerLeft[0] : topRight[0],:]
-            
-            gray = cv2.cvtColor(playerFrame, cv2.COLOR_BGR2GRAY)
-            
-            faces = face_detection.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
-
-            if len(faces) > 0:
-                faces = sorted(faces, reverse=True,
-                key=lambda x: (x[2] - x[0]) * (x[3] - x[1]))[0]
-                (fX, fY, fW, fH) = faces
-                # Extract the ROI of the face from the grayscale image, resize it to a fixed 48x48 pixels, 
-                # and then prepare the ROI for classification via the CNN
-                roi = gray[fY:fY + fH, fX:fX + fW]
-                roi = cv2.resize(roi, (48, 48))
-                roi = roi.astype("float") / 255.0
-                roi = img_to_array(roi)
-                roi = np.expand_dims(roi, axis=0)
-                
-                preds = emotion_classifier.predict(roi)[0]
-
-                if preds is not None:
-                    extractedEmotion = extractMostProbable(list(emotionControls.keys()), preds)
-                    turnDirection = emotionControls[extractedEmotion["mostProbable"]]
-                    probability = extractedEmotion["probability"]
-                    print({turnDirection, probability})                
-                    #return {extractedEmotion, turnDirection, probability}
-
+    #Expensive operation, costly to enlarge
+    frame = imutils.resize(frame, width=WIDTH) 
+    canvas = np.zeros((HEIGHT, HEIGHT, 3), dtype="uint8")
+    frameClone = frame.copy()
+    preds = None
+   
+    for playerIndex in range(0, PLAYERS):
+        lowerLeft = (PLAYER_FRAME_WIDTH*playerIndex + FRAME_WIDTH, FRAME_WIDTH)
+        topRight = (PLAYER_FRAME_WIDTH*(playerIndex + 1) - FRAME_WIDTH, PLAYER_FRAME_HEIGHT - FRAME_WIDTH)
         if DISPLAY_SCREEN:
-            cv2.imshow('your_face', frameClone)
-        
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+            cv2.rectangle(frameClone, lowerLeft, topRight, PLAYER_COLORS[playerIndex][::-1], FRAME_WIDTH)
+        playerFrame = frameClone[lowerLeft[1]:topRight[1], lowerLeft[0] : topRight[0],:]
+       
+        gray = cv2.cvtColor(playerFrame, cv2.COLOR_BGR2GRAY)
+       
+        faces = face_detection.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30), flags=cv2.CASCADE_SCALE_IMAGE)
+        if len(faces) > 0:
+            faces = sorted(faces, reverse=True,
+            key=lambda x: (x[2] - x[0]) * (x[3] - x[1]))[0]
+            (fX, fY, fW, fH) = faces
+            # Extract the ROI of the face from the grayscale image, resize it to a fixed 48x48 pixels, 
+            # and then prepare the ROI for classification via the CNN
+            roi = gray[fY:fY + fH, fX:fX + fW]
+            roi = cv2.resize(roi, (48, 48))
+            roi = roi.astype("float") / 255.0
+            roi = img_to_array(roi)
+            roi = np.expand_dims(roi, axis=0)
+            
+            preds = emotion_classifier.predict(roi)[0]
+            if preds is not None:
+                extractedEmotion = extractMostProbable(list(emotionControls.keys()), preds)
+                turnDirection = emotionControls[extractedEmotion["mostProbable"]]
+                probability = extractedEmotion["probability"]
+                playerEmotionControls[playerIndex] = {"extractedEmotion": extractedEmotion, "turnDirection": turnDirection, "probability": probability}
+               
+    if DISPLAY_SCREEN:
+        cv2.imshow('facecontrol', frameClone)
+   
+    return playerEmotionControls
 
-
-if __name__ == '__main__':
+def faceControlLoop(controls):
     right = "angry"
     left = "happy"
     forward = "neutral"
-    controlEmotions = {right: "right", left: "left", forward: "forward"}
+    controlEmotions = {right: "RIGHT", left: "LEFT", forward: None}
 
-    getFaceControls(controlEmotions)
+    emotion_classifier = load_model(emotion_model_path, compile=False)
+
+    while True:
+        
+        result = getFaceControls(controlEmotions, emotion_classifier)
+        if result is not None and len(result) > 0:
+            controls[:] = result
+            
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    
     camera.release()
     cv2.destroyAllWindows()
-
-
-# TODO:
-# X emotion extraction (method taking in two of the emotion keys)
-#   and returning neutral, or one of those two, which has highest probability
-# X two separate modes, one which shows camera input with zones and probabilities (facesensor.py)
-# - and one that only returns control for each player, (with face visible indicator?)
+ 
+# TODO: refactor and improve code greatly
 # - perhaps a sensitivity rate adjuster, basically just multiplier constants to be set
 #   for all of the emotions
-# - come up with asynchronus reporting method
-# - switch for displaying areas

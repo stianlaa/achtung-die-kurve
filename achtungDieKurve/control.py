@@ -1,4 +1,6 @@
 import pygame
+from faceControls import faceControlLoop
+from threading import Thread, Event
 
 playerKeyboardControls = [
     [pygame.K_RIGHT, pygame.K_LEFT],
@@ -8,9 +10,14 @@ playerKeyboardControls = [
 
 controls = []
 
+def initiateFaceControls():
+    t = Thread(target=faceControlLoop, args=(controls,))
+    t.start()
+
 class Control():
     def __init__(self, index, controlMode):
         self.player_id = index
+        self.controlMode = controlMode
         # TODO: set allowed events to keyboard list
 
         if (controlMode == "KEYBOARD"):
@@ -21,14 +28,22 @@ class Control():
         elif (controlMode == "HANDS"):
             print("Hand gesture control, coming soon, to an achtung near you!")
         elif (controlMode == "FACE"):
-            print("Face control, coming soon, to an achtung near you!")
+            print("Face control chosen")
         else:
             print("Missing control mode")
 
     def getControlInput(self):
-        if (controls[self.player_id]["RIGHT"]()):
-            return "RIGHT"
-        elif (controls[self.player_id]["LEFT"]()):
-            return "LEFT"
+        if (self.controlMode == "KEYBOARD"):
+            if (controls[self.player_id]["RIGHT"]()):
+                return "RIGHT"
+            elif (controls[self.player_id]["LEFT"]()):
+                return "LEFT"
+            else:
+                return None
+        elif (self.controlMode == "FACE"):
+            if controls is None or len(controls) == 0:
+                return None
+            else:
+                return controls[self.player_id]["turnDirection"]
         else:
             return None

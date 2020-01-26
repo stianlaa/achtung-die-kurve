@@ -1,7 +1,7 @@
 import pygame
 from common import WIDTH, HEIGHT, POWERUP_DURATION, PLAYERS, IMAGE_BACKGROUND, FPS, CONTROL_MODE, PRINT_FPS, SCORE_LIMIT, PLACEMENT
 from player import Player
-from control import Control
+from control import Control, initiateFaceControls
 from snake import Snake
 from powerup import Powerup
 from util import findUnoccupiedPosForSnake, placePowerupAtUnoccupiedPos
@@ -42,6 +42,8 @@ def init():
     pygame.init()
     GAMECLOCK = pygame.time.Clock()
     DISPLAY = pygame.display.set_mode((WIDTH, HEIGHT))
+
+    initiateFaceControls()
 
     for index in range(0, PLAYERS):
         playerControl = Control(index, CONTROL_MODE) 
@@ -146,7 +148,6 @@ def drawBackground():
 
 
 def updateGame():
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quitGame()
