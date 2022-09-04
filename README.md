@@ -1,3 +1,3 @@
-# rpes
+# Achtung die kurve
 
-Raspberry Pi Entertainment System
+A minimal implementation of achtung die kurve, controlled using facial expressions
